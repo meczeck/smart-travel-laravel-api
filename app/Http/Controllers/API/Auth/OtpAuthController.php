@@ -30,8 +30,8 @@ class OtpAuthController extends Controller
 
             if ($user) {
 
-                $verificationCode = $this->otpAuthService->generateOtp($user->phone);
-                $this->otpAuthService->sendOtp($verificationCode->otp);
+                $verificationCode = $this->otpAuthService->generateOtp($user->id);
+                $this->otpAuthService->sendOtp($verificationCode->otp, $user, 'both');
 
                 return response()->json(['message' => 'OTP Code successfully sent', 'otp' => $verificationCode->otp, 'opt_expires_at' => $verificationCode->expire_at], 200);
             }

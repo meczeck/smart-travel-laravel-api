@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('phone')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->integer('bus_company_id')->nullable();
+            $table->string('bus_company_id')->nullable();
             $table->boolean('otp_verification')->default(0)->comment("0=not-verified, 1=verified");
             $table->boolean('registration_verification')->default(0)->comment("0=not-verified, 1=verified");
             $table->boolean('status')->default(1)->comment("1=active, 0=inactive");

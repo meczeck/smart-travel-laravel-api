@@ -20,7 +20,7 @@ class OtpAuthService
             $user = $user::findOrFail($user->id);
 
             # Generate An OTP
-            $verificationCode = $this->generateOtp($user);
+            $verificationCode = $this->generateOtp($user->id);
 
             $this->sendOtp($verificationCode->otp, $user->email, 'email');
 
@@ -37,12 +37,12 @@ class OtpAuthService
             ], 500);
         }
     }
-    public function generateOtp($user)
+    public function generateOtp($userId)
     {
         try {
 
             # User Does not Have Any Existing OTP
-            $verificationCode = OtpCode::where('user_id', $user->id)->latest()->first();
+            $verificationCode = OtpCode::where('user_id', $userId)->latest()->first();
 
             //Get the current time
             $now = Carbon::now();
@@ -55,12 +55,12 @@ class OtpAuthService
             }
 
             OtpCode::create([
-                'user_id' => $user->id,
+                'user_id' => $userId,
                 'otp' => rand(123456, 999999),
                 'expire_at' => $now->addMinutes(10)
             ]);
 
-            return OtpCode::where('user_id', $user->id)->latest()->first();
+            return OtpCode::where('user_id', $userId)->latest()->first();
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
@@ -73,26 +73,14 @@ class OtpAuthService
     {
         try {
             if ($sendMethod == 'email') {
-                try {
-                    // Mail::to($recipient)->send(new OtpVerificationEmail($otp));
-                } catch (\Exception $e) {
-                    return response()->json([
-                        "error" => $e->getMessage(),
-                        "message" => "Send email failed, try again"
-                    ], 501);
-                }
-            } else {
+                $this->sendOtpViaEmail($otp, $recipient);
+            } elseif ($sendMethod == 'phone') {
                 //Send otp via sms
-                $response = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                    'Authorization' => 'Bearer ' . env('SMS_GATEWAY_TOKEN')
-                ])->post('https://dev.hudumasms.com/api/send-sms', [
-                            'sender_id' => env('SMS_SENDER_ID'),
-                            'sms' => "Your verification code is $otp, you can use it within 10 minutes",
-                            'schedule' => 'none',
-                            'recipients' => array(['number' => $recipient])
-                        ]);
+                $this->sendOtpViaSms($otp, $recipient);
+            } else {
+                //Send otp via both sms and email notification
+                $this->sendOtpViaEmail($otp, $recipient->email);
+                $this->sendOtpViaSms($otp, $recipient->phone);
             }
 
         } catch (\Exception $error) {
@@ -100,6 +88,32 @@ class OtpAuthService
                 'error' => $error->getMessage(),
                 'message' => "wrong in sendOtp method"
             ]);
+        }
+    }
+
+    public function sendOtpViaSms($otp, $recipient)
+    {
+        // Http::withHeaders([
+        //     'Content-Type' => 'application/json',
+        //     'Accept' => 'application/json',
+        //     'Authorization' => 'Bearer ' . env('SMS_GATEWAY_TOKEN')
+        // ])->post('https://dev.hudumasms.com/api/send-sms', [
+        //             'sender_id' => env('SMS_SENDER_ID'),
+        //             'sms' => "Your verification code is $otp, you can use it within 10 minutes",
+        //             'schedule' => 'none',
+        //             'recipients' => array(['number' => $recipient])
+        //         ]);
+    }
+
+    public function sendOtpViaEmail($otp, $recipient)
+    {
+        try {
+            // Mail::to($recipient)->send(new OtpVerificationEmail($otp));
+        } catch (\Exception $e) {
+            return response()->json([
+                "error" => $e->getMessage(),
+                "message" => "Send email failed, try again"
+            ], 501);
         }
     }
 
@@ -128,31 +142,5 @@ class OtpAuthService
 
         return response()->json(['errors' => 'OTP Code is invalid'], 401);
     }
-    public function registrationHandler($request, $role)
-    {
-        try {
-            $user = new User();
-            $user->email = $request->input('email');
-            $user->phone = $request->input('phone');
-            $user->name = $request->input('name');
-            $user->registration_verification = $role == 'mobile-user' ? 1 : 0;
-            $user->status = $role == 'mobile-user' ? 1 : 0;
-            $user->password = Hash::make($request->input('password'));
-
-            $user->save();
-
-            //Give permission to either mobile or dashboard to the system users
-            $user->assignRole($role);
-
-            //Returning the method called from the service above
-            return $this->issueOtp($user);
-        } catch (\Exception $e) {
-            return response([
-                'error' => $e->getMessage(),
-                'message' => 'something went wrong in OtpAuthService.registrationHandler'
-            ], 500);
-        }
-    }
-
 
 }

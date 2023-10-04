@@ -10,15 +10,14 @@ use App\Http\Resources\Auth\UserAuthenticationResource;
 use App\Models\OtpCode;
 use App\Models\User;
 use App\Services\OtpAuthService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use App\Traits\UserRegistrationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\API\Auth\OtpAuthController;
 
 class AuthController extends Controller
 {
+    use UserRegistrationTrait;
     protected $otpAuthService;
     public function __construct(OtpAuthService $otpAuthService)
     {
@@ -61,7 +60,7 @@ class AuthController extends Controller
                 if (Auth::attempt($credentials)) {
                     $request->session()->regenerate();
 
-                    $otpVerification = $this->otpAuthService->generateOtp($user);
+                    $otpVerification = $this->otpAuthService->generateOtp($user->id);
                     $this->otpAuthService->sendOtp($otpVerification->otp, $user->email, 'email');
 
                     $response = ['user' => $user, 'token' => '', 'expires_at' => $otpVerification->expire_at, 'otp' => $otpVerification->otp];
@@ -82,18 +81,17 @@ class AuthController extends Controller
     public function companyAdminRegistration(CompanyAdminRegistrationRequest $request)
     {
         $role = ['dashboard-user', 'company-admin'];
-        return $this->otpAuthService->registrationHandler($request, $role);
+        return $this->registrationHandler($request, $role);
     }
 
     public function customerRegistration(CompanyAdminRegistrationRequest $request)
     {
         $role = 'mobile-user';
-        return $this->otpAuthService->registrationHandler($request, $role);
+        return $this->registrationHandler($request, $role);
     }
 
     public function recoverPassword(Request $request)
     {
-
         $request->validate([
             'recovery_input' => 'required'
         ]);
@@ -102,13 +100,13 @@ class AuthController extends Controller
         $userViaPhone = User::where('phone', $request->input('recovery_input'))->first();
 
         if ($userViaEmail) {
-            $verification = $this->otpAuthService->generateOtp($userViaEmail);
+            $verification = $this->otpAuthService->generateOtp($userViaEmail->id);
             $this->otpAuthService->sendOtp($verification->otp, $userViaEmail->email, 'email');
             return response()->json(["message" => "OTP sent via your email address", 'otp' => $verification->otp, 'otp_expires_at' => $verification->expire_at, 'token' => $userViaEmail->createToken('login-token')->plainTextToken], 200);
         }
 
         if ($userViaPhone) {
-            $verification = $this->otpAuthService->generateOtp($userViaPhone);
+            $verification = $this->otpAuthService->generateOtp($userViaPhone->id);
             $this->otpAuthService->sendOtp($verification->otp, $userViaPhone->phone, 'phone');
             return response()->json(["message" => "OTP sent via your Phone Number", 'otp' => $verification->otp, 'otp_expires_at' => $verification->expire_at, 'token' => $userViaPhone->createToken('login-token')->plainTextToken], 200);
         }
