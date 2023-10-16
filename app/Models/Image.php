@@ -6,25 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class OtpCode extends Model
+class Image extends Model
 {
     use HasFactory;
 
     protected static function booted(): void
     {
-        static::creating(function (OtpCode $otpCode) {
-            $otpCode->id = Str::uuid()->toString();
+        static::creating(function (Image $image) {
+            $image->id = Str::uuid()->toString();
         });
     }
 
     public $incrementing = false;
 
+    public $timestamps = false;
+
     protected $fillable = [
-        'user_id',
-        'otp',
-        'expires_at'
+        'url',
+        'source_id'
     ];
 
-
-
+    public function busCompany()
+    {
+        return $this->belongsTo(BusCompany::class);
+    }
 }

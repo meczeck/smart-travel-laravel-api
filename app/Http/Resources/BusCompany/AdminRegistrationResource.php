@@ -24,7 +24,7 @@ class AdminRegistrationResource extends JsonResource
                 'otp_verification' => $this->resource['user']['otp_verification'],
                 'registration_verification' => $this->resource['user']['registration_verification'],
                 'status' => $this->resource['user']['status'],
-                // 'updated_at' => $this->resource['user']['updated_at'],
+                'bus_company_id' => $this->resource['user']['bus_company_id'],
                 // 'created_at' => $this->resource['user']['created_at'],
             ],
             'token' => $this->resource['token'],

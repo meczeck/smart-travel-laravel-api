@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('a_p_i_auth_controllers', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('images', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->uuid('source_id');
+            $table->string('url');
         });
     }
 
@@ -22,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('a_p_i_auth_controllers');
+        Schema::dropIfExists('images');
     }
 };

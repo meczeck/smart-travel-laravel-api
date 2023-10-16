@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,11 +12,12 @@ return new class extends Migration
     {
         Schema::create('otp_codes', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('user_id', 64)->index();
+            $table->uuid('user_id')->index(); 
             $table->integer('otp');
-            $table->timestamp('expire_at');
+            $table->timestamp('expires_at');
             $table->timestamps();
         });
+
     }
 
     /**

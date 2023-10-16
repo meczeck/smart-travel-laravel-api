@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Registration;
+namespace App\Http\Requests\BusCompany;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CompanyAdminRegistrationRequest extends FormRequest
+class UpdateCompanyAgentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,7 @@ class CompanyAdminRegistrationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|digits:12|numeric|unique:users,phone',
-            'name' => 'required|string',
-            'password' => 'required|confirmed'
+            //
         ];
     }
 }

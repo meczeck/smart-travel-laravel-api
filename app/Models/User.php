@@ -14,6 +14,10 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
+    protected function getDefaultGuardName(): string
+    {
+        return 'sanctum';
+    }
 
     protected static function booted(): void
     {
@@ -32,7 +36,7 @@ class User extends Authenticatable
     protected $fillable = [
         'id',
         'name',
-        'email',
+    'email',
         'password',
         'opt_verification',
         'registration_verification',
@@ -63,4 +67,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+
+
+    public function busCompany()
+    {
+        return $this->belongsTo(BusCompany::class);
+    }
+
+
 }

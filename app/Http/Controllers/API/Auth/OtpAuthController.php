@@ -33,7 +33,7 @@ class OtpAuthController extends Controller
                 $verificationCode = $this->otpAuthService->generateOtp($user->id);
                 $this->otpAuthService->sendOtp($verificationCode->otp, $user, 'both');
 
-                return response()->json(['message' => 'OTP Code successfully sent', 'otp' => $verificationCode->otp, 'opt_expires_at' => $verificationCode->expire_at], 200);
+                return response()->json(['message' => 'OTP Code successfully sent', 'otp' => $verificationCode->otp, 'opt_expires_at' => $verificationCode->expires_at], 200);
             }
         } catch (\Exception $e) {
             return response()->json([
@@ -47,7 +47,7 @@ class OtpAuthController extends Controller
         try {
             //validate the otp code
             $request->validate([
-                'otp' => "required|numeric|digits:6",
+                'otp' => "required|numeric",
                 'user_id' => 'required|string'
             ]);
 

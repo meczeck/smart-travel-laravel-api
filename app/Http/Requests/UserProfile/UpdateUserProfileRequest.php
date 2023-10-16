@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Registration;
+namespace App\Http\Requests\UserProfile;
 
+use Auth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class CompanyAdminRegistrationRequest extends FormRequest
+class UpdateUserProfileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +24,9 @@ class CompanyAdminRegistrationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|digits:12|numeric|unique:users,phone',
-            'name' => 'required|string',
-            'password' => 'required|confirmed'
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore(Auth::user()->id)],
+            'name' => 'required|string|max:255',
+            'phones' => ['required', 'numeric', 'digits:12', 'regex:/^255\d{9}$/', Rule::unique('users', 'phone')->ignore(Auth::user()->id)],
         ];
     }
 }

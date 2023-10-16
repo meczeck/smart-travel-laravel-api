@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->longText('description')->nullable();
             $table->longText('policy')->nullable();
             $table->string('business_licence');
-            $table->boolean('registration_verification')->default(0)->comment('1=verified, 0=not-verified');
+            $table->uuid('registrar_id')->nullable();
             $table->boolean('status')->default(1)->comment('1=active, 0=inactive');
             $table->timestamps();
         });

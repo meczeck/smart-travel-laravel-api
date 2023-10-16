@@ -38,9 +38,28 @@ class RoleSeeder extends Seeder
                 "roleName" => "profile-management",
                 "permissions" => [
                     "change-password",
-                    "change-email",
+                    "update-profile",
                     "change-profile-image",
                     "deactivate-account"
+                ]
+            ],
+            [
+                "roleName" => "company-agents-management",
+                "permissions" => [
+                    "create-company-agent",
+                    "update-company-agent",
+                    "show-company-agent",
+                    "get-company-agents",
+                ]
+            ],
+            
+            [
+                "roleName" => "roles-management",
+                "permissions" => [
+                    "create-role",
+                    "update-role",
+                    "show-role",
+                    "get-roles",
                 ]
             ],
 
@@ -49,7 +68,32 @@ class RoleSeeder extends Seeder
             [
                 "roleName" => "super-admin",
                 "permissions" => [
-                    "browser-access",
+
+                ]
+            ],
+
+            [
+                "roleName" => "company-registrars",
+                "permissions" => [
+                ]
+            ],
+
+            [
+                "roleName" => "company-admin",
+                "permissions" => [
+                    "terms-and-conditions-access",
+                ]
+            ],
+            [
+                "roleName" => "bus-company-agent",
+                "permissions" => [
+
+                ]
+            ],
+            [
+                "roleName" => "main-customer",
+                "permissions" => [
+
                 ]
             ],
 
@@ -68,19 +112,22 @@ class RoleSeeder extends Seeder
             ],
 
             [
-                "roleName" => "company-admin",
+                "roleName" => "company-verification",
                 "permissions" => [
-                    "terms-and-conditions-access",
+                    "verify-company-registration",
+                    "unverify-company-registration",
                 ]
             ],
+
+
+
         ];
 
         foreach ($rolesAndPermissions as $roleAndPermission) {
-            $role = Role::create(['name' => $roleAndPermission["roleName"]]);
-            // $role->syncPermissions($roleAndPermission["permissions"]);
-
+            $role = Role::create(['guard_name' => 'sanctum', 'name' => $roleAndPermission["roleName"]]);
+            // $role->syncPermissions('guard_name' => 'sanctum', $roleAndPermission['permissions']);
             foreach ($roleAndPermission["permissions"] as $permission) {
-                $createdPermission = Permission::create(['name' => $permission]);
+                $createdPermission = Permission::create(['guard_name' => 'sanctum', 'name' => $permission]);
                 $role->givePermissionTo($createdPermission);
             }
 

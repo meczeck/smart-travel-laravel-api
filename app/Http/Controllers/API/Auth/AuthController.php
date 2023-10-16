@@ -32,7 +32,7 @@ class AuthController extends Controller
             if ($user && $user->hasRole('mobile-user')) {
 
                 if (Hash::check($request->input('password'), $user->password)) {
-                  
+
                     return $this->otpAuthService->issueOtp($user);
                 }
             }
@@ -56,15 +56,16 @@ class AuthController extends Controller
 
             $user = User::where('email', $credentials['email'])->first();
 
-            if ($user) {
+            if ($user && $user->hasRole('dashboard-user')) {
                 if (Auth::attempt($credentials)) {
-                    $request->session()->regenerate();
+                    // $request->session()->regenerate();
 
-                    $otpVerification = $this->otpAuthService->generateOtp($user->id);
-                    $this->otpAuthService->sendOtp($otpVerification->otp, $user->email, 'email');
+                    // $otpVerification = $this->otpAuthService->generateOtp($user->id);
+                    // $this->otpAuthService->sendOtp($otpVerification->otp, $user->email, 'email');
 
-                    $response = ['user' => $user, 'token' => '', 'expires_at' => $otpVerification->expire_at, 'otp' => $otpVerification->otp];
-                    return new UserAuthenticationResource($response);
+                    // $response = ['user' => $user, 'token' => '', 'expires_at' => $otpVerification->expires_at, 'otp' => $otpVerification->otp];
+                    // return new UserAuthenticationResource($response);
+                    return $this->otpAuthService->issueOtp($user);
                 }
             }
 
@@ -80,7 +81,7 @@ class AuthController extends Controller
 
     public function companyAdminRegistration(CompanyAdminRegistrationRequest $request)
     {
-        $role = ['dashboard-user', 'company-admin'];
+        $role = ['dashboard-user','company-admin'];
         return $this->registrationHandler($request, $role);
     }
 
@@ -102,13 +103,13 @@ class AuthController extends Controller
         if ($userViaEmail) {
             $verification = $this->otpAuthService->generateOtp($userViaEmail->id);
             $this->otpAuthService->sendOtp($verification->otp, $userViaEmail->email, 'email');
-            return response()->json(["message" => "OTP sent via your email address", 'otp' => $verification->otp, 'otp_expires_at' => $verification->expire_at, 'token' => $userViaEmail->createToken('login-token')->plainTextToken], 200);
+            return response()->json(["message" => "OTP sent via your email address", 'otp' => $verification->otp, 'otp_expires_at' => $verification->expires_at, 'token' => $userViaEmail->createToken('login-token')->plainTextToken], 200);
         }
 
         if ($userViaPhone) {
             $verification = $this->otpAuthService->generateOtp($userViaPhone->id);
             $this->otpAuthService->sendOtp($verification->otp, $userViaPhone->phone, 'phone');
-            return response()->json(["message" => "OTP sent via your Phone Number", 'otp' => $verification->otp, 'otp_expires_at' => $verification->expire_at, 'token' => $userViaPhone->createToken('login-token')->plainTextToken], 200);
+            return response()->json(["message" => "OTP sent via your Phone Number", 'otp' => $verification->otp, 'otp_expires_at' => $verification->expires_at, 'token' => $userViaPhone->createToken('login-token')->plainTextToken], 200);
         }
 
         return response()->json(['error' => 'Provide valid information'], 403);
@@ -135,12 +136,6 @@ class AuthController extends Controller
         }
     }
 
-    public function getUser($id) {
-        $user = User::find($id);
-        $response = ['user' => $user, 'permissions' => $user->getAllPermissions()];
-    
-        return new GetUserResource($response);
-    }
 
     public function logout(Request $request)
     {
