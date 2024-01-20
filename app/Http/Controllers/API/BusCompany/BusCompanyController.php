@@ -42,9 +42,9 @@ class BusCompanyController extends Controller
         try {
 
             if (BusCompany::find(Auth::user()->bus_company_id)) {
-                return response()->json(['message' => 'Company Informations already registered. You can edit'], 200);
+                return response()->json(['message' => 'Company Informations already registered. You can edit'], 400);
             }
-            //Encoding the files from request
+            //Decoding the files from request
             $logo = base64_decode($request->input('logo'));
             $business_licence = base64_decode($request->input('business_licence'));
 
