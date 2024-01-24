@@ -22,11 +22,6 @@ use App\Http\Controllers\API\Admin\RoleController;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-
 //Authentication Routes
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout']);
