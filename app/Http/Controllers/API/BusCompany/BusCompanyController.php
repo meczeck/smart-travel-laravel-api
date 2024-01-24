@@ -84,7 +84,8 @@ class BusCompanyController extends Controller
     public function show(string $id)
     {
         try {
-            $busCompany = BusCompany::with('companyAdmin')->find($id);
+            $companyAdmin = User::find($id);
+            $busCompany = BusCompany::with('companyAdmin')->find($companyAdmin->bus_company_id);
 
             if ($busCompany) {
                 return response()->json(['data' => $busCompany], 200);

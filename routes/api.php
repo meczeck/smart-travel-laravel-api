@@ -34,6 +34,7 @@ Route::prefix('registration')->group(function () {
     Route::post('company-admin', [AuthController::class, 'companyAdminRegistration']);
 });
 
+//Authenticated Routes
 Route::middleware(['auth:sanctum'])->group(function () {
     //Otp authentication routes
     Route::middleware('isLoginToken')->group(function () {
@@ -56,20 +57,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('disprove/{id}', [BusCompanyController::class, 'disproveCompanyReg']);
         });
 
+        //Bus Company details
         Route::get('bus-companies/{id}', [BusCompanyController::class, 'getSingleCompany'])->middleware(['role:company-admin']);
         Route::resource('bus-companies', BusCompanyController::class)->middleware('role:dashboard-user')->middleware(['role:company-admin']);
         Route::get('bus-companies', [BusCompanyController::class, 'index'])->middleware(['role:super-admin']);
 
-
         //Bus Company agents
         Route::resource('company-agents', BusCompanyAgentController::class)->middleware(['role:compy-agents-management']);
 
-        //regions and districts routes
-        Route::get('regions', [PlaceController::class, 'getAllRegions']);
-        Route::get('districts/{id}', [PlaceController::class, 'getDistrictsByRegion']);
-
-        //Company Routes
+        //Bus Company Routes
         Route::get('company-routes/{id}', [RouteController::class, 'getCompanyRoutes']);
         Route::resource('routes', RouteController::class);
+
+        //Regions and districts routes
+        Route::get('regions', [PlaceController::class, 'getAllRegions']);
+        Route::get('districts/{id}', [PlaceController::class, 'getDistrictsByRegion']);
     });
 });
