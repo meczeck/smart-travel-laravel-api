@@ -198,7 +198,7 @@ class BusCompanyController extends Controller
             ]);
         }
     }
-    public function unverifyCompanyReg(string $id)
+    public function disproveCompanyReg(string $id)
     {
         try {
             $companyAdmin = User::where('bus_company_id', $id)->first();

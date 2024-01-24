@@ -24,7 +24,7 @@ class AuthController extends Controller
         $this->otpAuthService = $otpAuthService;
     }
 
-    public function TokenBasedLogin(Request $request)
+    public function login(Request $request)
     {
         try {
             $user = User::where('email', $request->input('email'))->first();
@@ -58,13 +58,6 @@ class AuthController extends Controller
 
             if ($user && $user->hasRole('dashboard-user')) {
                 if (Auth::attempt($credentials)) {
-                    // $request->session()->regenerate();
-
-                    // $otpVerification = $this->otpAuthService->generateOtp($user->id);
-                    // $this->otpAuthService->sendOtp($otpVerification->otp, $user->email, 'email');
-
-                    // $response = ['user' => $user, 'token' => '', 'expires_at' => $otpVerification->expires_at, 'otp' => $otpVerification->otp];
-                    // return new UserAuthenticationResource($response);
                     return $this->otpAuthService->issueOtp($user);
                 }
             }

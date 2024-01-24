@@ -28,9 +28,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 
 //Authentication Routes
-Route::post('mobile-login', [AuthController::class, 'TokenBasedLogin']);
-Route::post('login', [AuthController::class, 'webLogin']);
-Route::post('register-company-admin', [AuthController::class, 'companyAdminRegistration']);
+Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout']);
 Route::post('recover-password', [AuthController::class, 'recoverPassword']);
 
@@ -38,6 +36,7 @@ Route::post('recover-password', [AuthController::class, 'recoverPassword']);
 Route::prefix('registration')->group(function () {
     Route::post('customer', [AuthController::class, 'customerRegistration']);
     Route::post('company', [AuthController::class, 'companyAdminRegistration']);
+    Route::post('company-admin', [AuthController::class, 'companyAdminRegistration']);
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -59,10 +58,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::prefix('company-registration')->middleware(['role:super-admin|company-registrars'])->group(function () {
             Route::get('verify/{id}', [BusCompanyController::class, 'verifyCompanyReg']);
-            Route::get('unverify/{id}', [BusCompanyController::class, 'unverifyCompanyReg']);
+            Route::get('disprove/{id}', [BusCompanyController::class, 'disproveCompanyReg']);
         });
 
-        Route::get('our-company/{id}', [BusCompanyController::class, 'getSingleCompany'])->middleware(['role:company-admin']);
+        Route::get('bus-companies/{id}', [BusCompanyController::class, 'getSingleCompany'])->middleware(['role:company-admin']);
         Route::resource('bus-companies', BusCompanyController::class)->middleware('role:dashboard-user')->middleware(['role:company-admin']);
         Route::get('bus-companies', [BusCompanyController::class, 'index'])->middleware(['role:super-admin']);
 
@@ -78,8 +77,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('company-routes/{id}', [RouteController::class, 'getCompanyRoutes']);
         Route::resource('routes', RouteController::class);
     });
-
-    Route::get('test', function () {
-        return "hello there";
-    })->middleware('isLoginToken');
 });
